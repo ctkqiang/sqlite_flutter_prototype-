@@ -21,7 +21,7 @@ class DatabaseHelper {
     if (id != null) {
       map[did] = id;
     }
-    
+
     return map;
   }
 }
