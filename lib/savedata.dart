@@ -16,8 +16,14 @@ class SqliteDemo extends StatefulWidget {
 
 class _SqliteDemoState extends State<SqliteDemo> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   TextEditingController _nameController = TextEditingController();
+
   DatabaseHelper databaseHelper = DatabaseHelper();
+
+  List<DatabaseHelper> _data = [];
+
+  int _increment;
 
   String valid(value) {
     if (value.isEmpty) {
@@ -29,10 +35,22 @@ class _SqliteDemoState extends State<SqliteDemo> {
 
   void _saveData() {
     if (_formKey.currentState.validate()) {
+      _formKey.currentState..save();
+
       for (int i = 0; i < 2; i++) {
         print('數據已添加 -> ${_nameController.text}');
+
         print(databaseHelper.data);
       }
+
+      setState(() {
+        _data.add(DatabaseHelper(
+          id: _increment,
+          data: databaseHelper.data,
+        ));
+      });
+
+      _formKey.currentState.reset();
     }
   }
 
@@ -55,6 +73,15 @@ class _SqliteDemoState extends State<SqliteDemo> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
+        Image.network(
+          'https://flutter.cn/favicon.ico',
+          height: 80,
+          width: 80,
+        ),
+        Divider(
+          color: Colors.transparent,
+          height: 23.3 * 2.1,
+        ),
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.0),

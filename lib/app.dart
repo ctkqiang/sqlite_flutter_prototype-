@@ -35,7 +35,7 @@ class _SqliteApplicationState extends State<SqliteApplication> {
       backgroundColor: Colors.red,
       actions: <Widget>[
         IconButton(
-          tooltip: '關於此軟件開發人員' ,
+          tooltip: '關於此軟件開發人員',
           color: Colors.white,
           icon: Icon(Icons.info_outline),
           onPressed: aboutDeveloper,
