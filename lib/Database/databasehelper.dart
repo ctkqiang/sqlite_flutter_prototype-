@@ -52,6 +52,9 @@ class DatabaseHelper {
 
     for (int i = 0; i < listLength; i++) {
       data.add(Data(list[i]['data']));
+      item = data.toString();
+
+      print('長度 -> ${listLength.toString()} 個數據已保存 \n --> $item');
     }
 
     item = data.toString();
