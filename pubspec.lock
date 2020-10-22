@@ -165,6 +165,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.13"
+  simple_permissions:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "0.1.0"
+      resolved-ref: "77a0c7ce2f73254893f3881c0a352a441fe57727"
+      url: "https://github.com/johnmelodyme/simple_permissions.git"
+    source: git
+    version: "0.1.9"
   sky_engine:
     dependency: transitive
     description: flutter

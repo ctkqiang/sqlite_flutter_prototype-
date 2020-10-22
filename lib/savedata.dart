@@ -1,7 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:sqlite_search_engine/Database/database_helper.dart';
+import 'package:sqlite_search_engine/Database/databasehelper.dart';
+import 'package:sqlite_search_engine/Database/model/data.dart';
 
 class SqliteDemo extends StatefulWidget {
   SqliteDemo({Key key, this.title}) : super(key: key);
@@ -19,11 +20,9 @@ class _SqliteDemoState extends State<SqliteDemo> {
 
   TextEditingController _nameController = TextEditingController();
 
-  DatabaseHelper databaseHelper = DatabaseHelper();
+  String thedata;
 
-  List<DatabaseHelper> _data = [];
-
-  int _increment;
+  int increment = 0;
 
   String valid(value) {
     if (value.isEmpty) {
@@ -33,25 +32,30 @@ class _SqliteDemoState extends State<SqliteDemo> {
     return null;
   }
 
-  void _saveData() {
+  void _saveData() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState..save();
 
-      for (int i = 0; i < 2; i++) {
+      for (int i = 0; i < 1; i++) {
         print('數據已添加 -> ${_nameController.text}');
-
-        print(databaseHelper.data);
       }
-
-      setState(() {
-        _data.add(DatabaseHelper(
-          id: _increment,
-          data: databaseHelper.data,
-        ));
-      });
-
-      _formKey.currentState.reset();
     }
+
+    Data data = Data(thedata);
+
+    DatabaseHelper databaseHelper = DatabaseHelper();
+
+    print(data.toString());
+
+    print('储存资料中.....');
+
+    databaseHelper.saveData(data);
+
+    if (databaseHelper.getData() == null) {
+      throw ('数据为空 NULL');
+    }
+
+    print('数据成功保存在数据库成功');
   }
 
   Container appBody() {
@@ -109,6 +113,9 @@ class _SqliteDemoState extends State<SqliteDemo> {
 
   TextFormField name() {
     return TextFormField(
+      onSaved: (value) {
+        this.thedata = value;
+      },
       controller: _nameController,
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(

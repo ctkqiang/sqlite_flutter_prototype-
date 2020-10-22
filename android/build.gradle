@@ -23,6 +23,7 @@ allprojects {
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+    println "SQL DEMO [John Melody] -> Compilling apk.........."
 }
 subprojects {
     project.evaluationDependsOn(':app')
@@ -31,6 +32,6 @@ subprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
     doLast {
-        println 'SQL DEMO {John Melody} -> rootProject.buildDir Deleted '
+        println "SQL DEMO {John Melody} -> rootProject.buildDir Deleted "
     }
 }

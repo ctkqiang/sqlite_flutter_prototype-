@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:sqlite_search_engine/about.dart';
+import 'package:sqlite_search_engine/core/permission.dart';
 import 'package:sqlite_search_engine/savedata.dart';
 import 'package:sqlite_search_engine/showdata.dart';
 
@@ -22,10 +24,30 @@ class _SqliteApplicationState extends State<SqliteApplication> {
     ShowData(),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+
+    requestUserPermission();
+  }
+
+  void requestUserPermission() {
+    if (Platform.isAndroid) {
+      OperatingSystemPermission().requestAndroidUserPermission();
+    } else if (Platform.isIOS) {
+      OperatingSystemPermission().requestIOSUserPermission();
+    } else {
+      throw (' -> 此操作系统不支持此軟件');
+    }
+  }
+
   void aboutDeveloper() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return AboutDeveloper();
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) {
+        return AboutDeveloper();
+      }),
+    );
   }
 
   AppBar appBar() {
