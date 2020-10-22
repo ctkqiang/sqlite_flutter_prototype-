@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:4.0.2'
     }
 
     /**
@@ -27,6 +27,7 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(':app')
+    println "SQLITE 搜索引擎示范 [John Melody] -> project.evaluationDependsOn(':app') "
 }
 
 task clean(type: Delete) {

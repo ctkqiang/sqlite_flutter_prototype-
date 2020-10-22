@@ -1,5 +1,5 @@
 class Data {
   String data;
 
-  Data( this.data);
+  Data(this.data);
 }

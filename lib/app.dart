@@ -4,6 +4,7 @@ import 'package:sqlite_search_engine/about.dart';
 import 'package:sqlite_search_engine/core/permission.dart';
 import 'package:sqlite_search_engine/savedata.dart';
 import 'package:sqlite_search_engine/showdata.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SqliteApplication extends StatefulWidget {
   SqliteApplication({Key key, this.title}) : super(key: key);
@@ -18,6 +19,8 @@ class SqliteApplication extends StatefulWidget {
 
 class _SqliteApplicationState extends State<SqliteApplication> {
   int _currentIndex = 0;
+
+  String url = 'https://github.com/johnmelodyme/sqlite_flutter_prototype-.git';
 
   List<StatefulWidget> _pages = <StatefulWidget>[
     SqliteDemo(),
@@ -50,12 +53,24 @@ class _SqliteApplicationState extends State<SqliteApplication> {
     );
   }
 
+  void gotoSource() async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw (' -> 未能打開網址');
+    }
+  }
+
   AppBar appBar() {
     return AppBar(
       title: Text(widget.title),
       centerTitle: true,
       backgroundColor: Colors.red,
       actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.code),
+          onPressed: gotoSource,
+        ),
         IconButton(
           tooltip: '關於此軟件開發人員',
           color: Colors.white,
@@ -104,7 +119,12 @@ class _SqliteApplicationState extends State<SqliteApplication> {
   Container floatBtn() {
     return Container(
       child: bottomNavigationBar(),
-      padding: EdgeInsets.fromLTRB(32, 0, 32, 0),
+      padding: EdgeInsets.fromLTRB(
+        32,
+        0,
+        32,
+        0,
+      ),
     );
   }
 

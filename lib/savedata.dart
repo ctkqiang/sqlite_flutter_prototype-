@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:sqlite_search_engine/Database/databasehelper.dart';
 import 'package:sqlite_search_engine/Database/model/data.dart';

@@ -10,7 +10,7 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.0
- 
+
   sqflite_repo:
     git:
       url: https://github.com/johnmelodyme27/sqflite.git
@@ -23,8 +23,10 @@ dependencies:
 
   sqflite: any
 
+  url_launcher: ^5.4.2
+
   path_provider: ^1.6.21
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

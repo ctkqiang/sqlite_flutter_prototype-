@@ -91,7 +91,7 @@ class _ShowDataState extends State<ShowData> {
       // TODO change this
       body: SingleChildScrollView(
         child: Container(
-          child: Text('${DatabaseHelper.item}'),
+          child: Text('${DatabaseHelper.item.toString()}'),
           padding: EdgeInsets.fromLTRB(
             40,
             20,

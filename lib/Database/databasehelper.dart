@@ -7,7 +7,7 @@ import 'package:sqlite_search_engine/Database/model/data.dart';
 class DatabaseHelper {
   static Database _database;
   static String item;
-  int databseVersion = 2;
+  int databaseVersion = 1;
 
   Future<Database> get getDatabase async {
     if (_database != null) {
@@ -23,10 +23,10 @@ class DatabaseHelper {
   initDatabase() async {
     io.Directory documentsDirectory = await getApplicationDocumentsDirectory();
 
-    String path = join(documentsDirectory.path, 'testingsqldemo.db');
+    String path = join(documentsDirectory.path, 'johnsqlite.db');
 
     Database theDatabase =
-        await openDatabase(path, version: databseVersion, onCreate: _onCreate);
+        await openDatabase(path, version: databaseVersion, onCreate: _onCreate);
 
     return theDatabase;
   }
@@ -35,7 +35,7 @@ class DatabaseHelper {
   void _onCreate(Database db, int version) async {
     print('正在制造數據庫創建表...');
 
-    await db.execute('CREATE TABLE Data(data TEXT)');
+    await db.execute('CREATE TABLE Data(id INTEGER PRIMARY KEY, data TEXT)');
 
     print('制造數據庫創建表完畢');
   }
@@ -56,7 +56,7 @@ class DatabaseHelper {
 
     item = data.toString();
 
-    print('長度 -> ${listLength.toString()} 個數據已保存');
+    print('長度 -> ${listLength.toString()} 個數據已保存 \n $item');
 
     return data;
   }
