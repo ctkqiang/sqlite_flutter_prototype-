@@ -8,12 +8,19 @@ class DatabaseHelper {
   DatabaseHelper._privateConstructor();
 
   static String databaseName = 'sqldemojohn.db';
+
   static String table = 'Data';
+
   static String columnId = 'id';
+
   static String columnData = 'data';
+
   static String item;
+
   static int databaseVersion = 1;
+
   static DatabaseHelper instance = DatabaseHelper._privateConstructor();
+
   static Database _database;
 
   Future<Database> get getDatabase async {
@@ -70,13 +77,16 @@ class DatabaseHelper {
   // * 查詢數據庫中的所有記錄
   Future<List<Map<String, dynamic>>> queryAllRecords() async {
     Database database = await instance.getDatabase;
+
     var result = await database.query(table, orderBy: "$columnId DESC");
+
     return result;
   }
 
   // * 從數據庫中刪除記錄
   Future<int> delete(int id) async {
     Database database = await instance.getDatabase;
+
     return await database
         .delete(table, where: '$columnData = ?', whereArgs: [id]);
   }
@@ -84,6 +94,7 @@ class DatabaseHelper {
   // * 從表中刪除記錄
   Future<void> clearTable() async {
     Database database = await instance.getDatabase;
+
     return await database.rawQuery('''DELETE FROM $table''');
   }
 
