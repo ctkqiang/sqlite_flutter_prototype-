@@ -24,8 +24,11 @@ class DatabaseHelper {
   static Database _database;
 
   Future<Database> get getDatabase async {
+
     if (_database != null) {
+    
       return _database;
+    
     }
 
     _database = await initDatabase();
