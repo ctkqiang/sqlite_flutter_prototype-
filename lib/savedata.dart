@@ -95,32 +95,40 @@ class _SqliteDemoState extends State<SqliteDemo> {
     );
   }
 
-  SingleChildScrollView showData() {
-    return SingleChildScrollView(
-      child: Container(
-        child: (() {
-          if (dataArray.isEmpty) {
-            return nodata();
-          } else {
-            return ListView.builder(itemBuilder: (context, index) {
-              if (index == dataArray.length) {
-                return null;
-              }
-              return ListTile(
-                title: Text(
-                  dataArray[index].data,
-                  style: TextStyle(color: Colors.black),
-                ),
-                leading: Text(dataArray[index].id.toString()),
-                trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: deleteData(dataArray[index].id)),
-              );
-            });
-          }
-        }()),
-      ),
+  Container showData() {
+    return Container(
+      child: (() {
+        if (dataArray.isEmpty) {
+          return nodata();
+        } else {
+          return Flexible(
+            child: listview(),
+          );
+        }
+      }()),
     );
+  }
+
+  ListView listview() {
+    return ListView.builder(
+        shrinkWrap: true,
+        itemBuilder: (context, index) {
+          if (index == dataArray.length) {
+            return null;
+          }
+          return ListTile(
+            title: Text(
+              dataArray[index].data,
+              style: TextStyle(color: Colors.black),
+            ),
+            leading: Text(dataArray[index].id.toString()),
+            trailing: IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  return deleteData(dataArray[index].id);
+                }),
+          );
+        });
   }
 
   Text nodata() {
