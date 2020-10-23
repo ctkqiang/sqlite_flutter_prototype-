@@ -84,25 +84,24 @@ class DatabaseHelper {
   // * 從表中刪除記錄
   Future<void> clearTable() async {
     Database database = await instance.getDatabase;
-    return await database.rawQuery("DELETE FROM $table");
+    return await database.rawQuery('''DELETE FROM $table''');
   }
 
-  // * Reference : https://bit.ly/3odxGdV
-  // * Issue: `Unhandled Exception: DatabaseException`
-  // * Solution:  `INSERT INTO Data(data) VALUES(?)', [data.data]`
-  // * Caused: `INSERT INTO Data(data) VALUES(data.data)`
-  // *
-  // * Error ->  "(1299) SQLITE_CONSTRAINT_NOTNULL
+  // * 參考 : https://bit.ly/3odxGdV
+  // * 問題 : `Unhandled Exception: DatabaseException`
+  // * 解法 :  `INSERT INTO Data(data) VALUES(?)', [data.data]`
+  // * 引起 : `INSERT INTO Data(data) VALUES(data.data)`
+  // * 錯誤 ->  "(1299) SQLITE_CONSTRAINT_NOTNULL
   // * The SQLITE_CONSTRAINT_NOTNULL error code is an extended error code for
   // * SQLITE_CONSTRAINT indicating that a NOT NULL constraint failed."
-
+  // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   // * 保存數據
   void saveData(Data data) async {
     Database databaseClient = await getDatabase;
 
     await databaseClient.transaction((Transaction transaction) {
       return transaction
-          .rawInsert('INSERT INTO Data(data) VALUES(${data.data})');
+          .rawInsert('''INSERT INTO Data(data) VALUES(${data.data})''');
     });
   }
 }
