@@ -23,6 +23,23 @@ class _SqliteDemoState extends State<SqliteDemo> {
 
   int increment = 0;
 
+  List<Data> dataArray = List();
+
+  @override
+  void initState() {
+    super.initState();
+    DatabaseHelper.instance.queryAllRecords().then((value) {
+      setState(() {
+        value.forEach((element) {
+          dataArray.add(Data(id: element['id'], data: element['data']));
+        });
+      });
+    }).catchError((error) {
+      assert(error != null);
+      print(error.toString());
+    });
+  }
+
   String valid(value) {
     if (value.isEmpty) {
       return '此字段不應留空';
@@ -31,43 +48,86 @@ class _SqliteDemoState extends State<SqliteDemo> {
     return null;
   }
 
-  void _saveData() async {
+  deleteData(int id) async {
+    await DatabaseHelper.instance.delete(id);
+    setState(() {
+      dataArray.removeWhere((element) {
+        return element.id == id;
+      });
+    });
+  }
+
+  _saveData() async {
+    String input = _nameController.text;
+    int id = await DatabaseHelper.instance.insert(Data(data: input));
+
     if (_formKey.currentState.validate()) {
       _formKey.currentState..save();
 
       for (int i = 0; i < 1; i++) {
-        print('數據已添加 -> ${_nameController.text}');
+        print('數據已添加 -> $input');
       }
+
+      setState(() {
+        dataArray.insert(0, Data(id: id, data: input));
+      });
     }
-
-    Data data = Data(thedata);
-
-    DatabaseHelper databaseHelper = DatabaseHelper();
-
-    print(data.toString());
-
-    print('储存资料中.....');
-
-    databaseHelper.saveData(data);
-
-    if (databaseHelper.getData() == null) {
-      throw ('数据为空 NULL');
-    }
-
-    print('数据成功保存在数据库成功');
   }
 
   Container appBody() {
     return Container(
       padding: EdgeInsets.fromLTRB(
         22.0 * 2,
-        98.2 * 2,
+        10.3 * 1,
         22.0 * 2,
         23.2 * 2,
       ),
       child: Form(
         key: _formKey,
         child: inputData(),
+      ),
+    );
+  }
+
+  SizedBox sizedbox() {
+    return SizedBox(
+      height: 20,
+    );
+  }
+
+  SingleChildScrollView showData() {
+    return SingleChildScrollView(
+      child: Container(
+        child: (() {
+          if (dataArray.isEmpty) {
+            return nodata();
+          } else {
+            return ListView.builder(itemBuilder: (context, index) {
+              if (index == dataArray.length) {
+                return null;
+              }
+              return ListTile(
+                title: Text(
+                  dataArray[index].data,
+                  style: TextStyle(color: Colors.black),
+                ),
+                leading: Text(dataArray[index].id.toString()),
+                trailing: IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: deleteData(dataArray[index].id)),
+              );
+            });
+          }
+        }()),
+      ),
+    );
+  }
+
+  Text nodata() {
+    return Text(
+      '數據庫中沒有數據',
+      style: TextStyle(
+        color: Colors.red,
       ),
     );
   }
@@ -93,6 +153,8 @@ class _SqliteDemoState extends State<SqliteDemo> {
         ),
         Text('\n\n'),
         saveData(),
+        // sizedbox(),
+        showData(),
       ],
     );
   }

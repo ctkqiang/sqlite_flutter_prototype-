@@ -1,9 +1,20 @@
+// * Copyright 2020 John Melody Me
+// * Licensed under the Apache License, Version 2.0 (the "License");
+// * you may not use this file except in compliance with the License.
+// * You may obtain a copy of the License at
+//
+// * http://www.apache.org/licenses/LICENSE-2.0
+//
+// * Unless required by applicable law or agreed to in writing, software
+// * distributed under the License is distributed on an "AS IS" BASIS,
+// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// * See the License for the specific language governing permissions and
+// * limitations under the License.
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:sqlite_search_engine/about.dart';
 import 'package:sqlite_search_engine/core/permission.dart';
 import 'package:sqlite_search_engine/savedata.dart';
-import 'package:sqlite_search_engine/showdata.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SqliteApplication extends StatefulWidget {
@@ -18,14 +29,9 @@ class SqliteApplication extends StatefulWidget {
 }
 
 class _SqliteApplicationState extends State<SqliteApplication> {
-  int _currentIndex = 0;
-
   String url = 'https://github.com/johnmelodyme/sqlite_flutter_prototype-.git';
 
-  List<StatefulWidget> _pages = <StatefulWidget>[
-    SqliteDemo(),
-    ShowData(),
-  ];
+
 
   @override
   void initState() {
@@ -81,60 +87,15 @@ class _SqliteApplicationState extends State<SqliteApplication> {
     );
   }
 
-  BottomNavigationBar bottomNavigationBar() {
-    return BottomNavigationBar(
-      onTap: (index) {
-        setState(() {
-          _currentIndex = index;
-        });
-      },
-      type: BottomNavigationBarType.fixed,
-      selectedIconTheme: IconThemeData(color: Colors.red),
-      currentIndex: _currentIndex,
-      showSelectedLabels: true,
-      fixedColor: Colors.red,
-      selectedLabelStyle: TextStyle(color: Colors.red),
-      items: <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.storage),
-          label: '輸入數據',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.list),
-          label: '查看資料',
-        ),
-      ],
-    );
-  }
 
-  PageView body() {
-    return PageView(
-      allowImplicitScrolling: true,
-      children: <Widget>[
-        _pages[_currentIndex],
-      ],
-    );
-  }
 
-  Container floatBtn() {
-    return Container(
-      child: bottomNavigationBar(),
-      padding: EdgeInsets.fromLTRB(
-        32,
-        0,
-        32,
-        0,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    var scaffold = Scaffold(
       appBar: appBar(),
-      body: body(),
-      floatingActionButton: floatBtn(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      body: SqliteDemo(),
     );
+    return scaffold;
   }
 }

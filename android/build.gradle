@@ -19,6 +19,18 @@ allprojects {
         jcenter()
     }
 }
+    
+println "SQLITE 搜索引擎示范 [John Melody] -> Gradle version: " + project.getGradle().getGradleVersion()
+
+println "SQLITE 搜索引擎示范 [John Melody] -> Groovy version: " + GroovySystem.getVersion()
+
+if (project.getGradle().getGradleVersion() == "6.7") {
+    
+    println "SQLITE 搜索引擎示范 [John Melody] -> Gradle Is Updated"
+} else {
+    
+    println "SQLITE 搜索引擎示范 [John Melody] -> GRADLE NEED UPGRADE !"
+}
 
 rootProject.buildDir = '../build'
 subprojects {
@@ -33,6 +45,6 @@ subprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
     doLast {
-        println "SQL DEMO {John Melody} -> rootProject.buildDir Deleted "
+        println "SQLITE 搜索引擎示范 [John Melody] -> rootProject.buildDir Deleted "
     }
 }
