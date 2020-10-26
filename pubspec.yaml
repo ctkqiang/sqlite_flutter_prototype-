@@ -16,6 +16,8 @@ dependencies:
       url: https://github.com/johnmelodyme27/sqflite.git
       ref: v1.3.1
 
+  flutter_bloc: any
+
   simple_permissions:
     git:
       url: https://github.com/johnmelodyme/simple_permissions.git

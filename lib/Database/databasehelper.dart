@@ -1,34 +1,35 @@
-import 'dart:io' as io;
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqlite_search_engine/Database/model/data.dart';
 
 class DatabaseHelper {
   DatabaseHelper._privateConstructor();
+  
+  // ignore: non_constant_identifier_names
+  static String DATABASE_NAME = 'sqldemojohn.db';
 
-  static String databaseName = 'sqldemojohn.db';
+  // ignore: non_constant_identifier_names
+  static String TABLE_NAME = 'Data';
 
-  static String table = 'Data';
+  // ignore: non_constant_identifier_names
+  static String COLUMN_ID = 'id';
 
-  static String columnId = 'id';
-
-  static String columnData = 'data';
+  // ignore: non_constant_identifier_names
+  static String COLUMN_DATA = 'data';
 
   static String item;
 
-  static int databaseVersion = 1;
+  // ignore: non_constant_identifier_names
+  static int DATABASE_VERSION = 1;
 
   static DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   static Database _database;
 
   Future<Database> get getDatabase async {
-
+    // * Singleton
     if (_database != null) {
-    
       return _database;
-    
     }
 
     _database = await initDatabase();
@@ -37,51 +38,57 @@ class DatabaseHelper {
   }
 
   // * 在本地目录中创建数据库
-  initDatabase() async {
-    io.Directory documentsDirectory = await getApplicationDocumentsDirectory();
-
-    String path = join(documentsDirectory.path, databaseName);
-
-    Database theDatabase =
-        await openDatabase(path, version: databaseVersion, onCreate: _onCreate);
-
-    return theDatabase;
+  Future<Database> initDatabase() async {
+    String dbsDirectory = await getDatabasesPath();
+    return await openDatabase(
+      join(dbsDirectory, DATABASE_NAME),
+      version: DATABASE_VERSION,
+      onCreate: _onCreate,
+    );
   }
 
   // * 制造數據庫創建表
   void _onCreate(Database db, int version) async {
-    print('正在制造數據庫創建表...' +
-        '''
-        \n
-        CREATE TABLE $table(
-        $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
-        $columnData FLOAT NOT NULL
-        ''');
-
-    await db.execute('''
-    CREATE TABLE $table(
-    $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
-    $columnData FLOAT NOT NULL
-    )
-    ''');
+    await db.execute(
+      "CREATE TABLE $TABLE_NAME("
+      "$COLUMN_ID INTEGER PRIMARY KEY,"
+      "$COLUMN_DATA TEXT"
+      ")",
+    );
 
     print('制造數據庫創建表完畢');
   }
 
+  Future<List<Data>> getData() async {
+    Database db = await getDatabase;
+
+    var data = await db.query(TABLE_NAME, columns: [COLUMN_ID, COLUMN_DATA]);
+
+    List<Data> datalist = List<Data>();
+
+    data.forEach((currentData) {
+      Data data = Data.fromMap(currentData);
+
+      datalist.add(data);
+    });
+
+    return datalist;
+  }
+
   // * 將數據插入數據庫
-  Future<int> insert(Data data) async {
+  Future<Data> insert(Data data) async {
     Database database = await instance.getDatabase;
 
-    int result = await database.insert(table, data.toMap());
+    data.id = await database.insert(TABLE_NAME, data.toMap());
 
-    return result;
+    return data;
   }
 
   // * 查詢數據庫中的所有記錄
   Future<List<Map<String, dynamic>>> queryAllRecords() async {
     Database database = await instance.getDatabase;
 
-    var result = await database.query(table, orderBy: "$columnId DESC");
+    var result = await database.query(TABLE_NAME, orderBy: "$COLUMN_ID DESC");
 
     return result;
   }
@@ -90,15 +97,18 @@ class DatabaseHelper {
   Future<int> delete(int id) async {
     Database database = await instance.getDatabase;
 
-    return await database
-        .delete(table, where: '$columnData = ?', whereArgs: [id]);
+    return await database.delete(
+      TABLE_NAME,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   // * 從表中刪除記錄
   Future<void> clearTable() async {
     Database database = await instance.getDatabase;
 
-    return await database.rawQuery('''DELETE FROM $table''');
+    return await database.rawQuery('''DELETE FROM $TABLE_NAME''');
   }
 
   // * 參考 : https://bit.ly/3odxGdV
@@ -115,7 +125,19 @@ class DatabaseHelper {
 
     await databaseClient.transaction((Transaction transaction) {
       return transaction
-          .rawInsert('''INSERT INTO Data(data) VALUES(${data.data})''');
+          .rawInsert('''INSERT INTO Data(data) VALUES(${data.data});''');
+    });
+  }
+
+  searchData(Data data) async {
+    Database databaseClient = await getDatabase;
+
+    await databaseClient.transaction((Transaction transaction) {
+      return transaction.rawInsert('''
+      SELECT * FROM $TABLE_NAME WHERE $COLUMN_DATA LIKE '$data';
+      ''');
+    }).then((value) {
+      print('Value: ---> $value');
     });
   }
 }

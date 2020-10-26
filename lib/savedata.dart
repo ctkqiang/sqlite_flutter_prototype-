@@ -1,7 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:sqlite_search_engine/Database/databasehelper.dart';
 import 'package:sqlite_search_engine/Database/model/data.dart';
+
+// https://www.youtube.com/watch?v=E4yRzqChFxY
+
 
 class SqliteDemo extends StatefulWidget {
   SqliteDemo({Key key, this.title}) : super(key: key);
@@ -12,12 +16,15 @@ class SqliteDemo extends StatefulWidget {
   _SqliteDemoState createState() {
     return _SqliteDemoState();
   }
-}
+} 
+
+// https://github.com/cheetahcoding/CwC_Flutter/blob/sqflite_tutorial/lib/db/database_provider.dart
 
 class _SqliteDemoState extends State<SqliteDemo> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   TextEditingController _nameController = TextEditingController();
+  TextEditingController _searchController = TextEditingController();
 
   String thedata;
 
@@ -28,19 +35,21 @@ class _SqliteDemoState extends State<SqliteDemo> {
   @override
   void initState() {
     super.initState();
-    DatabaseHelper.instance.queryAllRecords().then((value) {
-      setState(() {
-        value.forEach((element) {
-          dataArray.add(Data(id: element['id'], data: element['data']));
-        });
-      });
-    }).catchError((error) {
-      assert(error != null);
-      print(error.toString());
+
+    DatabaseHelper.instance.getDatabase.then((datalist){
+    print(datalist.toString());
     });
   }
 
   String valid(value) {
+    if (value.isEmpty) {
+      return '此字段不應留空';
+    }
+
+    return null;
+  }
+
+  String validSearch(value) {
     if (value.isEmpty) {
       return '此字段不應留空';
     }
@@ -57,21 +66,12 @@ class _SqliteDemoState extends State<SqliteDemo> {
     });
   }
 
+  _searchData() async {
+ 
+  }
+
   _saveData() async {
-    String input = _nameController.text;
-    int id = await DatabaseHelper.instance.insert(Data(data: input));
-
-    if (_formKey.currentState.validate()) {
-      _formKey.currentState..save();
-
-      for (int i = 0; i < 1; i++) {
-        print('數據已添加 -> $input');
-      }
-
-      setState(() {
-        dataArray.insert(0, Data(id: id, data: input));
-      });
-    }
+  
   }
 
   Container appBody() {
@@ -151,7 +151,12 @@ class _SqliteDemoState extends State<SqliteDemo> {
         ),
         Divider(
           color: Colors.transparent,
-          height: 23.3 * 2.1,
+          height: 8.0 * 1,
+        ),
+        searchBar(),
+        Divider(
+          color: Colors.transparent,
+          height: 6.0 * 2.1,
         ),
         Container(
           decoration: BoxDecoration(
@@ -161,7 +166,7 @@ class _SqliteDemoState extends State<SqliteDemo> {
         ),
         Text('\n\n'),
         saveData(),
-        // sizedbox(),
+        search(),
         showData(),
       ],
     );
@@ -177,6 +182,43 @@ class _SqliteDemoState extends State<SqliteDemo> {
         '保存數據',
         style: TextStyle(color: Colors.white),
       ),
+    );
+  }
+
+  RaisedButton search() {
+    return RaisedButton(
+      onPressed: _searchData,
+    );
+  }
+
+  TextFormField searchBar() {
+    return TextFormField(
+      onSaved: (data) {
+        print(data);
+      },
+      controller: _searchController,
+      decoration: InputDecoration(
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(
+            color: Colors.red,
+            width: 2.0,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(
+            color: Colors.red,
+            width: 2.0,
+          ),
+        ),
+        border: InputBorder.none,
+        suffixIcon: Icon(Icons.search, color: Colors.red),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        alignLabelWithHint: true,
+        hintText: '輸入尋找數據 (Search)',
+      ),
+      validator: validSearch,
     );
   }
 
@@ -205,7 +247,7 @@ class _SqliteDemoState extends State<SqliteDemo> {
         suffixIcon: Icon(Icons.storage, color: Colors.red),
         floatingLabelBehavior: FloatingLabelBehavior.always,
         alignLabelWithHint: true,
-        hintText: '輸入數據',
+        hintText: '輸入數據 (data)',
       ),
       validator: valid,
     );
