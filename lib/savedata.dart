@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:sqlite_search_engine/Database/databasehelper.dart';
@@ -6,6 +5,9 @@ import 'package:sqlite_search_engine/Database/model/data.dart';
 
 // https://www.youtube.com/watch?v=E4yRzqChFxY
 // https://github.com/Rahiche/sqlite_demo/blob/master/lib/main.dart
+//
+// *   this is a prototype of flutter sqflite
+// *
 
 class SqliteDemo extends StatefulWidget {
   SqliteDemo({Key key, this.title}) : super(key: key);
@@ -82,12 +84,12 @@ class _SqliteDemoState extends State<SqliteDemo> {
     });
   }
 
-  FutureBuilder<List<Data>> appBody() {
+  FutureBuilder<List<Data>> listData() {
     FutureBuilder dataFutureBuilder = FutureBuilder<List<Data>>(
       future: DatabaseHelper.instance.queryAllRecords(),
       builder: (BuildContext context, AsyncSnapshot<List<Data>> snapshot) {
         if (snapshot.hasData) {
-          return ListView.builder(
+          ListView listView = ListView.builder(
             itemCount: snapshot.data.length,
             itemBuilder: (BuildContext context, int index) {
               Data item = snapshot.data[index];
@@ -100,7 +102,6 @@ class _SqliteDemoState extends State<SqliteDemo> {
                       DatabaseHelper.instance.delete(item.id);
                     }
                   });
-                  print('nothing happen');
                 },
               );
               Dismissible dismissible = Dismissible(
@@ -119,6 +120,7 @@ class _SqliteDemoState extends State<SqliteDemo> {
               return dismissible;
             },
           );
+          return listView;
         } else {
           Center loading = Center(child: CircularProgressIndicator());
           return loading;
@@ -138,6 +140,18 @@ class _SqliteDemoState extends State<SqliteDemo> {
       },
     );
     return actionButton;
+  }
+
+  Column appBody() {
+    Expanded appbodyexpanded = Expanded(
+      child: listData(),
+    );
+    List<Widget> appbodychildren = <Widget>[
+      appbodyexpanded,
+    ];
+    return Column(
+      children: appbodychildren,
+    );
   }
 
   @override
