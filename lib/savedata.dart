@@ -108,6 +108,30 @@ class _SqliteDemoState extends State<SqliteDemo> {
 
   // * UI Component * //
 
+  ListView searchResultDialogue() {
+    List<Widget> listViewChildren = <Widget>[
+      /// Something here
+    ];
+    ListView listView = ListView(
+      children: listViewChildren,
+    );
+    return listView;
+  }
+
+  Future<dynamic> showDialogue() {
+    Future dialogue = showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          ListView resultDialogue = searchResultDialogue();
+          AlertDialog alertDialogue = AlertDialog(
+            title: Text(''),
+            content: resultDialogue,
+          );
+          return alertDialogue;
+        });
+    return dialogue;
+  }
+
   FutureBuilder<List<Data>> listData() {
     FutureBuilder dataFutureBuilder = FutureBuilder<List<Data>>(
       future: DatabaseHelper.instance.queryAllRecords(),
@@ -156,7 +180,10 @@ class _SqliteDemoState extends State<SqliteDemo> {
   }
 
   FloatingActionButton addButton() {
+    String tooltip = 'Add Dummy Data From Existing Source?';
     FloatingActionButton actionButton = FloatingActionButton(
+      elevation: null,
+      tooltip: tooltip,
       child: Icon(Icons.add),
       onPressed: () async {
         Data rnd = dummyData[math.Random().nextInt(dummyData.length)];
