@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sqlite_search_engine/Database/databasehelper.dart';
 import 'package:sqlite_search_engine/Database/model/data.dart';
 
-// https://www.youtube.com/watch?v=E4yRzqChFxY
-// https://github.com/Rahiche/sqlite_demo/blob/master/lib/main.dart
-//
+// * @author: John Melody Me
 // *   this is a prototype of flutter sqflite
 // *
 
@@ -23,9 +21,9 @@ class SqliteDemo extends StatefulWidget {
 class _SqliteDemoState extends State<SqliteDemo> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  TextEditingController _nameController = TextEditingController();
-
   TextEditingController _searchController = TextEditingController();
+
+  TextEditingController _inputController = TextEditingController();
 
   String thedata;
 
@@ -142,11 +140,27 @@ class _SqliteDemoState extends State<SqliteDemo> {
     return actionButton;
   }
 
+  Form searchEngine() {
+    Form form = Form(
+      child: TextFormField(
+        cursorColor: Colors.red,
+      ),
+    );
+    return form;
+  }
+
   Column appBody() {
     Expanded appbodyexpanded = Expanded(
       child: listData(),
     );
+    Form appBodySearchEngine = searchEngine();
+    Divider appbodydivider = Divider(
+      height: 50,
+      color: Colors.transparent,
+    );
     List<Widget> appbodychildren = <Widget>[
+      appBodySearchEngine,
+      appbodydivider,
       appbodyexpanded,
     ];
     return Column(

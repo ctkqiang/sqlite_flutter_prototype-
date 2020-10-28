@@ -5,12 +5,14 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.2'
+        classpath 'com.android.tools.build:gradle:4.1.0'
     }
 
     /**
      * The Minimum Gradle version should be 3.5.0 never downgrade to ```3.1.0.```
      */
+
+    println "SQLITE 搜索引擎示范 [John Melody] -> 最低Gradle版本應為 \'3.5.0\'，切勿降級為 \'3.1.0。\' "
 }
 
 allprojects {
@@ -19,28 +21,32 @@ allprojects {
         jcenter()
     }
 }
-    
+
 println "SQLITE 搜索引擎示范 [John Melody] -> Gradle version: " + project.getGradle().getGradleVersion()
 
 println "SQLITE 搜索引擎示范 [John Melody] -> Groovy version: " + GroovySystem.getVersion()
 
 if (project.getGradle().getGradleVersion() == "6.7") {
-    
+
     println "SQLITE 搜索引擎示范 [John Melody] -> Gradle Is Updated"
+
 } else {
-    
+
     println "SQLITE 搜索引擎示范 [John Melody] -> GRADLE NEED UPGRADE !"
 }
 
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-    println "SQLITE 搜索引擎示范 [John Melody] -> 將軟件編譯為二進製文件 .apk .... "
 }
+
+println "SQLITE 搜索引擎示范 [John Melody] -> 將軟件編譯為二進製文件 .apk .... "
+
 subprojects {
     project.evaluationDependsOn(':app')
-    println "SQLITE 搜索引擎示范 [John Melody] -> project.evaluationDependsOn(':app') "
 }
+
+println "SQLITE 搜索引擎示范 [John Melody] -> project.evaluationDependsOn(':app') "
 
 task clean(type: Delete) {
     delete rootProject.buildDir
