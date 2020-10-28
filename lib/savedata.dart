@@ -1,10 +1,11 @@
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:sqlite_search_engine/Database/databasehelper.dart';
 import 'package:sqlite_search_engine/Database/model/data.dart';
 
 // * @author: John Melody Me
-// *   this is a prototype of flutter sqflite
+// * this is a prototype of flutter sqflite
 // *
 
 class SqliteDemo extends StatefulWidget {
@@ -26,12 +27,14 @@ class _SqliteDemoState extends State<SqliteDemo> {
   TextEditingController _inputController = TextEditingController();
 
   String thedata;
+  String hintInput = '在此处插入数据';
+  String hintSearch = '在此处搜索现有数据';
 
   int increment = 0;
 
   bool isChecked = false;
 
-  List<Data> dataArray = List();
+  List<Data> dataArray;
 
   List<Data> dummyData = [
     Data(data: "doraemon"),
@@ -77,9 +80,23 @@ class _SqliteDemoState extends State<SqliteDemo> {
     await DatabaseHelper.instance.delete(id);
     setState(() {
       dataArray.removeWhere((element) {
+        print('Element -> $element');
         return element.id == id;
       });
     });
+  }
+
+  saveData() async {
+    String _data = _inputController.text;
+    int length = math.Random().nextInt(_data.length);
+    if (_formKey.currentState.validate()) {
+      DatabaseHelper.instance.newData(Data(data: _data, id: length));
+      setState(() {});
+    }
+  }
+
+  searchData() async {
+    
   }
 
   FutureBuilder<List<Data>> listData() {
@@ -102,6 +119,11 @@ class _SqliteDemoState extends State<SqliteDemo> {
                   });
                 },
               );
+              ListTile listTile = ListTile(
+                title: Text(item.data),
+                leading: Text(item.id.toString()),
+                trailing: checkbox,
+              );
               Dismissible dismissible = Dismissible(
                 key: UniqueKey(),
                 background: Container(color: Colors.white),
@@ -109,11 +131,7 @@ class _SqliteDemoState extends State<SqliteDemo> {
                   print(direction.toString());
                   DatabaseHelper.instance.delete(item.id);
                 },
-                child: ListTile(
-                  title: Text(item.data),
-                  leading: Text(item.id.toString()),
-                  trailing: checkbox,
-                ),
+                child: listTile,
               );
               return dismissible;
             },
@@ -140,11 +158,119 @@ class _SqliteDemoState extends State<SqliteDemo> {
     return actionButton;
   }
 
+  TextFormField inputDataTextField() {
+    BorderRadius borderRadius = BorderRadius.circular(15.0);
+    BorderSide borderSide = BorderSide(color: Colors.red);
+    OutlineInputBorder outlineInputBorder = OutlineInputBorder(
+      borderRadius: borderRadius,
+      borderSide: borderSide,
+    );
+    InputDecoration inputDecoration = InputDecoration(
+      focusedBorder: outlineInputBorder,
+      fillColor: Colors.red,
+      hoverColor: Colors.red,
+      border: outlineInputBorder,
+      hintText: hintInput,
+    );
+    TextFormField inputTextFormField = TextFormField(
+      cursorColor: Colors.red,
+      decoration: inputDecoration,
+      controller: _inputController,
+    );
+    return inputTextFormField;
+  }
+
+  TextFormField searchBarTextField() {
+    BorderRadius borderRadius = BorderRadius.circular(15.0);
+    BorderSide borderSide = BorderSide(color: Colors.red);
+    OutlineInputBorder outlineInputBorder = OutlineInputBorder(
+      borderRadius: borderRadius,
+      borderSide: borderSide,
+    );
+    InputDecoration inputDecoration = InputDecoration(
+      focusedBorder: outlineInputBorder,
+      fillColor: Colors.red,
+      hoverColor: Colors.red,
+      border: outlineInputBorder,
+      hintText: hintSearch,
+    );
+    TextFormField searchTextFormField = TextFormField(
+      controller: _searchController,
+      cursorColor: Colors.red,
+      decoration: inputDecoration,
+    );
+    return searchTextFormField;
+  }
+
+  RaisedButton save() {
+    TextStyle textStyle = TextStyle(color: Colors.white, fontSize: 17.823);
+    Text save = Text(
+      '保存',
+      style: textStyle,
+    );
+    return RaisedButton(
+      elevation: 6,
+      child: save,
+      color: Colors.red,
+      onPressed: saveData,
+    );
+  }
+
+  RaisedButton search() {
+    TextStyle textStyle = TextStyle(color: Colors.white, fontSize: 17.823);
+    Text search = Text('搜索', style: textStyle);
+    return RaisedButton(
+      elevation: 6,
+      child: search,
+      color: Colors.red,
+      onPressed: searchData,
+    );
+  }
+
+  Row buttons() {
+    RaisedButton savebtn = save();
+    RaisedButton searchbtn = search();
+    MainAxisAlignment center = MainAxisAlignment.center;
+    Text hDivider = Text('\t\t\t\t\t\t\t');
+    Text vDivider = Text('\n\n\n\n\n');
+    List<Widget> rowChildren = <Widget>[
+      vDivider,
+      savebtn,
+      hDivider,
+      searchbtn,
+    ];
+    Row buttonsRow = Row(
+      mainAxisAlignment: center,
+      children: rowChildren,
+    );
+    return buttonsRow;
+  }
+
   Form searchEngine() {
+    TextFormField searchEngineInputDataTextField = inputDataTextField();
+    TextFormField searchEngineSearchDataTextField = searchBarTextField();
+    Divider searchEngineDivider = Divider(
+      height: 20,
+      color: Colors.transparent,
+    );
+    Row searchEngineActionButtons = buttons();
+    List<Widget> searchEngineColumnChildren = <Widget>[
+      searchEngineInputDataTextField,
+      searchEngineDivider,
+      searchEngineSearchDataTextField,
+      searchEngineActionButtons,
+    ];
+    Column searchEngineColumn = Column(
+      children: searchEngineColumnChildren,
+    );
+    EdgeInsets containerEdgeInsets = EdgeInsets.fromLTRB(30, 40, 30, 0);
+    Container searchEngineContainer = Container(
+      padding: containerEdgeInsets,
+      child: searchEngineColumn,
+    );
     Form form = Form(
-      child: TextFormField(
-        cursorColor: Colors.red,
-      ),
+      key: _formKey,
+      child: searchEngineContainer,
     );
     return form;
   }
@@ -155,7 +281,7 @@ class _SqliteDemoState extends State<SqliteDemo> {
     );
     Form appBodySearchEngine = searchEngine();
     Divider appbodydivider = Divider(
-      height: 50,
+      height: 10.122235,
       color: Colors.transparent,
     );
     List<Widget> appbodychildren = <Widget>[

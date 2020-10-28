@@ -101,6 +101,7 @@ class DatabaseHelper {
   }
 
   // * 從數據庫中刪除記錄
+  // * @param id get item.id from user input
   Future<int> delete(int id) async {
     Database database = await instance.getDatabase;
 
@@ -137,7 +138,7 @@ class DatabaseHelper {
 
     await databaseClient.transaction((Transaction transaction) {
       return transaction
-          .rawInsert('''INSERT INTO $TABLE_NAME(data) VALUES(${data.data});''');
+          .rawInsert("""INSERT INTO $TABLE_NAME(data, id) VALUES(${data.data}, ${data.id});""");
     });
   }
 

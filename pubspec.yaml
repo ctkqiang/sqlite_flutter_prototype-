@@ -16,7 +16,10 @@ dependencies:
       url: https://github.com/johnmelodyme27/sqflite.git
       ref: v1.3.1
 
-  flutter_bloc: any
+  fluttertoast:
+    git:
+      url: https://github.com/ponnamkarthik/FlutterToast.git
+
 
   simple_permissions:
     git:
