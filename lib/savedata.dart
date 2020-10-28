@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sqlite_search_engine/Database/databasehelper.dart';
 import 'package:sqlite_search_engine/Database/model/data.dart';
@@ -59,6 +60,12 @@ class _SqliteDemoState extends State<SqliteDemo> {
     DatabaseHelper.instance.getDatabase.then((datalist) {
       print(datalist.toString());
     });
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      DatabaseHelper.instance.initDatabase().then((value) {
+        print('制造數據庫創建表完畢');
+      });
+    });
   }
 
   String valid(value) {
@@ -101,12 +108,10 @@ class _SqliteDemoState extends State<SqliteDemo> {
     String _data = _searchController.text;
     int length = math.Random().nextInt(_data.length);
     if (_formKey.currentState.validate()) {
-      if (data != null) {
-        DatabaseHelper.instance.searchData(Data(data: _data, id: length));
-        print(DatabaseHelper.instance.searchData(Data(data: _data, id: length)).toString());
-      } else {
-        return '失敗';
-      }
+      DatabaseHelper.instance.searchData(Data(data: _data, id: length));
+      print(DatabaseHelper.instance
+          .searchData(Data(data: _data, id: length))
+          .toString());
     }
   }
 
@@ -187,6 +192,7 @@ class _SqliteDemoState extends State<SqliteDemo> {
       cursorColor: Colors.red,
       decoration: inputDecoration,
       controller: _inputController,
+      validator: validSearch,
     );
     return inputTextFormField;
   }
@@ -209,6 +215,7 @@ class _SqliteDemoState extends State<SqliteDemo> {
       controller: _searchController,
       cursorColor: Colors.red,
       decoration: inputDecoration,
+      validator: valid,
     );
     return searchTextFormField;
   }
