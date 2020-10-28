@@ -96,7 +96,7 @@ class _SqliteDemoState extends State<SqliteDemo> {
   }
 
   searchData() async {
-    
+
   }
 
   FutureBuilder<List<Data>> listData() {
