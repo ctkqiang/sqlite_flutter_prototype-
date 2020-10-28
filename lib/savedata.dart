@@ -17,10 +17,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:sqlite_search_engine/Database/databasehelper.dart';
 import 'package:sqlite_search_engine/Database/model/data.dart';
 
-// * @author: John Melody Me
-// * this is a prototype of flutter sqflite
-// *
-
 class SqliteDemo extends StatefulWidget {
   SqliteDemo({
     Key key,
