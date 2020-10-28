@@ -76,14 +76,6 @@ class _SqliteDemoState extends State<SqliteDemo> {
     return null;
   }
 
-  String validSearch(value) {
-    if (value.isEmpty) {
-      return '此字段不應留空';
-    }
-
-    return null;
-  }
-
   deleteData(int id) async {
     await DatabaseHelper.instance.delete(id);
     setState(() {
@@ -97,10 +89,8 @@ class _SqliteDemoState extends State<SqliteDemo> {
   saveData() async {
     String _data = _inputController.text;
     int length = math.Random().nextInt(_data.length);
-    if (_formKey.currentState.validate()) {
-      DatabaseHelper.instance.newData(Data(data: _data, id: length));
-      setState(() {});
-    }
+    DatabaseHelper.instance.newData(Data(data: _data, id: length));
+    setState(() {});
   }
 
   searchData() async {
@@ -192,7 +182,6 @@ class _SqliteDemoState extends State<SqliteDemo> {
       cursorColor: Colors.red,
       decoration: inputDecoration,
       controller: _inputController,
-      validator: validSearch,
     );
     return inputTextFormField;
   }
