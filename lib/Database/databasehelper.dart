@@ -139,6 +139,8 @@ class DatabaseHelper {
     await databaseClient.transaction((Transaction transaction) {
       return transaction
           .rawInsert("""INSERT INTO $TABLE_NAME(data, id) VALUES(${data.data}, ${data.id});""");
+    }).then((value) {
+      print('saveDataValue: ---> $value');
     });
   }
 
@@ -150,7 +152,7 @@ class DatabaseHelper {
       SELECT * FROM $TABLE_NAME WHERE $COLUMN_DATA LIKE '$data';
       ''');
     }).then((value) {
-      print('Value: ---> $value');
+      print('searchDataValue: ---> $value');
     });
   }
 }

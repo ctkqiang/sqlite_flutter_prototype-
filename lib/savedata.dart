@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sqlite_search_engine/Database/databasehelper.dart';
 import 'package:sqlite_search_engine/Database/model/data.dart';
 
@@ -96,7 +97,17 @@ class _SqliteDemoState extends State<SqliteDemo> {
   }
 
   searchData() async {
-
+    Data data;
+    String _data = _searchController.text;
+    int length = math.Random().nextInt(_data.length);
+    if (_formKey.currentState.validate()) {
+      if (data != null) {
+        DatabaseHelper.instance.searchData(Data(data: _data, id: length));
+        print(DatabaseHelper.instance.searchData(Data(data: _data, id: length)).toString());
+      } else {
+        return '失敗';
+      }
+    }
   }
 
   FutureBuilder<List<Data>> listData() {
