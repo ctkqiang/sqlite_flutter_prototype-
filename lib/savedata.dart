@@ -1,11 +1,11 @@
 import 'dart:ui';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:sqlite_search_engine/Database/databasehelper.dart';
 import 'package:sqlite_search_engine/Database/model/data.dart';
 
 // https://www.youtube.com/watch?v=E4yRzqChFxY
-
+// https://github.com/Rahiche/sqlite_demo/blob/master/lib/main.dart
 
 class SqliteDemo extends StatefulWidget {
   SqliteDemo({Key key, this.title}) : super(key: key);
@@ -16,28 +16,44 @@ class SqliteDemo extends StatefulWidget {
   _SqliteDemoState createState() {
     return _SqliteDemoState();
   }
-} 
-
-// https://github.com/cheetahcoding/CwC_Flutter/blob/sqflite_tutorial/lib/db/database_provider.dart
+}
 
 class _SqliteDemoState extends State<SqliteDemo> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   TextEditingController _nameController = TextEditingController();
+
   TextEditingController _searchController = TextEditingController();
 
   String thedata;
 
   int increment = 0;
 
+  bool isChecked = false;
+
   List<Data> dataArray = List();
+
+  List<Data> dummyData = [
+    Data(data: "doraemon"),
+    Data(data: "DDadasda"),
+    Data(data: "sdfsdfsd"),
+    Data(data: "doraemon"),
+    Data(data: "DDadasda"),
+    Data(data: "sdfsdfsd"),
+    Data(data: "doraemon"),
+    Data(data: "DDadasda"),
+    Data(data: "sdfsdfsd"),
+    Data(data: "doraemon"),
+    Data(data: "DDadasda"),
+    Data(data: "sdfsdfsd"),
+  ];
 
   @override
   void initState() {
     super.initState();
 
-    DatabaseHelper.instance.getDatabase.then((datalist){
-    print(datalist.toString());
+    DatabaseHelper.instance.getDatabase.then((datalist) {
+      print(datalist.toString());
     });
   }
 
@@ -66,197 +82,70 @@ class _SqliteDemoState extends State<SqliteDemo> {
     });
   }
 
-  _searchData() async {
- 
-  }
-
-  _saveData() async {
-  
-  }
-
-  Container appBody() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        22.0 * 2,
-        10.3 * 1,
-        22.0 * 2,
-        23.2 * 2,
-      ),
-      child: Form(
-        key: _formKey,
-        child: inputData(),
-      ),
-    );
-  }
-
-  SizedBox sizedbox() {
-    return SizedBox(
-      height: 20,
-    );
-  }
-
-  Container showData() {
-    return Container(
-      child: (() {
-        if (dataArray.isEmpty) {
-          return nodata();
+  FutureBuilder<List<Data>> appBody() {
+    FutureBuilder dataFutureBuilder = FutureBuilder<List<Data>>(
+      future: DatabaseHelper.instance.queryAllRecords(),
+      builder: (BuildContext context, AsyncSnapshot<List<Data>> snapshot) {
+        if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: snapshot.data.length,
+            itemBuilder: (BuildContext context, int index) {
+              Data item = snapshot.data[index];
+              Checkbox checkbox = Checkbox(
+                value: isChecked,
+                onChanged: (bool value) {
+                  setState(() {
+                    isChecked = true;
+                    if (isChecked = true) {
+                      DatabaseHelper.instance.delete(item.id);
+                    }
+                  });
+                  print('nothing happen');
+                },
+              );
+              Dismissible dismissible = Dismissible(
+                key: UniqueKey(),
+                background: Container(color: Colors.white),
+                onDismissed: (direction) {
+                  print(direction.toString());
+                  DatabaseHelper.instance.delete(item.id);
+                },
+                child: ListTile(
+                  title: Text(item.data),
+                  leading: Text(item.id.toString()),
+                  trailing: checkbox,
+                ),
+              );
+              return dismissible;
+            },
+          );
         } else {
-          return Flexible(
-            child: listview(),
-          );
+          Center loading = Center(child: CircularProgressIndicator());
+          return loading;
         }
-      }()),
-    );
-  }
-
-  ListView listview() {
-    return ListView.builder(
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          if (index == dataArray.length) {
-            return null;
-          }
-          return ListTile(
-            title: Text(
-              dataArray[index].data,
-              style: TextStyle(color: Colors.black),
-            ),
-            leading: Text(dataArray[index].id.toString()),
-            trailing: IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () {
-                  return deleteData(dataArray[index].id);
-                }),
-          );
-        });
-  }
-
-  Text nodata() {
-    return Text(
-      '數據庫中沒有數據',
-      style: TextStyle(
-        color: Colors.red,
-      ),
-    );
-  }
-
-  Column inputData() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Image.network(
-          'https://flutter.cn/favicon.ico',
-          height: 80,
-          width: 80,
-        ),
-        Divider(
-          color: Colors.transparent,
-          height: 8.0 * 1,
-        ),
-        searchBar(),
-        Divider(
-          color: Colors.transparent,
-          height: 6.0 * 2.1,
-        ),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          child: name(),
-        ),
-        Text('\n\n'),
-        saveData(),
-        search(),
-        showData(),
-      ],
-    );
-  }
-
-  RaisedButton saveData() {
-    return RaisedButton(
-      padding: EdgeInsets.all(10),
-      animationDuration: Duration(microseconds: 1),
-      color: Colors.red,
-      onPressed: _saveData,
-      child: Text(
-        '保存數據',
-        style: TextStyle(color: Colors.white),
-      ),
-    );
-  }
-
-  RaisedButton search() {
-    return RaisedButton(
-      onPressed: _searchData,
-    );
-  }
-
-  TextFormField searchBar() {
-    return TextFormField(
-      onSaved: (data) {
-        print(data);
       },
-      controller: _searchController,
-      decoration: InputDecoration(
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(
-            color: Colors.red,
-            width: 2.0,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(
-            color: Colors.red,
-            width: 2.0,
-          ),
-        ),
-        border: InputBorder.none,
-        suffixIcon: Icon(Icons.search, color: Colors.red),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        alignLabelWithHint: true,
-        hintText: '輸入尋找數據 (Search)',
-      ),
-      validator: validSearch,
     );
+    return dataFutureBuilder;
   }
 
-  TextFormField name() {
-    return TextFormField(
-      onSaved: (value) {
-        this.thedata = value;
+  FloatingActionButton addButton() {
+    FloatingActionButton actionButton = FloatingActionButton(
+      child: Icon(Icons.add),
+      onPressed: () async {
+        Data rnd = dummyData[math.Random().nextInt(dummyData.length)];
+        await DatabaseHelper.instance.newData(rnd);
+        setState(() {});
       },
-      controller: _nameController,
-      decoration: InputDecoration(
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(
-            color: Colors.red,
-            width: 2.0,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(
-            color: Colors.red,
-            width: 2.0,
-          ),
-        ),
-        border: InputBorder.none,
-        suffixIcon: Icon(Icons.storage, color: Colors.red),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        alignLabelWithHint: true,
-        hintText: '輸入數據 (data)',
-      ),
-      validator: valid,
     );
+    return actionButton;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    Scaffold mainpage = Scaffold(
       body: appBody(),
+      floatingActionButton: addButton(),
     );
+    return mainpage;
   }
 }
