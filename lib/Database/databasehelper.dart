@@ -63,8 +63,10 @@ class DatabaseHelper {
         "$COLUMN_DATA TEXT"
         ")",
       );
+      if(dbsDirectory.path.isNotEmpty) {
+        print('制造數據庫創建表完畢');
+      }
 
-      print('制造數據庫創建表完畢');
     });
   }
 

@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
-# @author JohnMelody_dev 
+#* Copyright 2020 John Melody Me
+#* Licensed under the Apache License, Version 2.0 (the "License");
+#* you may not use this file except in compliance with the License.
+#* You may obtain a copy of the License at
+#
+#* http://www.apache.org/licenses/LICENSE-2.0
+#
+#* Unless required by applicable law or agreed to in writing, software
+#* distributed under the License is distributed on an "AS IS" BASIS,
+#* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#* See the License for the specific language governing permissions and
+#* limitations under the License.
 # Please Do not Edit Without consent 
 # @contact johnmelodyme@yandex.com
-#
 # Check isKeyToolInstalled?
-if [   /usr/bin/keytool ]; then
+# shellcheck disable=SC2078
+if [/usr/bin/keytool]; then
     echo '*** Generating Encryption Key ***'
     # Generate 2048 bits RSA 256 Encryption with validity of 99999 days
     Keytool -genkey -v -keystore app.keystore -alias app_key -keyalg RSA -keysize 2048 -validity 99999
@@ -12,8 +23,10 @@ if [   /usr/bin/keytool ]; then
     sleep 3
     clear
 
+    # shellcheck disable=SC2034
     for i in {1..1}
     do
+        # shellcheck disable=SC2028
         echo '*** [Warning] DO NOT SKIP THIS INSTRUCTION UNLESS FAMILIAR *** \n'
         sleep 2
         echo 'After the key file {file_name_.keystore} generated, Please do not hesitate' 
@@ -53,6 +66,7 @@ if [   /usr/bin/keytool ]; then
         }
         "
         sleep 2
+        # shellcheck disable=SC2162
         read  -p  'Are you really want to build this app? [Y/N]' prompt
         if [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]
         then 

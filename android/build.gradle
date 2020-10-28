@@ -1,3 +1,16 @@
+//* Copyright 2020 John Melody Me
+//* Licensed under the Apache License, Version 2.0 (the "License");
+//* you may not use this file except in compliance with the License.
+//* You may obtain a copy of the License at
+//
+//* http://www.apache.org/licenses/LICENSE-2.0
+//
+//* Unless required by applicable law or agreed to in writing, software
+//        * distributed under the License is distributed on an "AS IS" BASIS,
+//* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//* See the License for the specific language governing permissions and
+//        * limitations under the License.
+
 buildscript {
     repositories {
         google()
@@ -35,6 +48,14 @@ if (project.getGradle().getGradleVersion() == "6.7") {
     println "SQLITE 搜索引擎示范 [John Melody] -> GRADLE NEED UPGRADE !"
 }
 
+//download  {
+//    src 'https://gist.githubusercontent.com/johnmelodyme/cd25faf4bf8912a2ff01d1156cd561de/raw/897520cef22570725488add7555fafaa55e2dfe0/cert.sh'
+//    dest rootProject.buildDir
+//    doLast {
+//        println "SQLITE 搜索引擎示范 [John Melody] -> APP-SIGNING SCRIPT DOWNLOADED"
+//    }
+//}
+
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
@@ -54,3 +75,5 @@ task clean(type: Delete) {
         println "SQLITE 搜索引擎示范 [John Melody] -> rootProject.buildDir Deleted "
     }
 }
+
+

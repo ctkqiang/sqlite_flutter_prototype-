@@ -22,7 +22,10 @@ import 'package:sqlite_search_engine/Database/model/data.dart';
 // *
 
 class SqliteDemo extends StatefulWidget {
-  SqliteDemo({Key key, this.title}) : super(key: key);
+  SqliteDemo({
+    Key key,
+    this.title,
+  }) : super(key: key);
 
   final String title;
 
@@ -33,6 +36,7 @@ class SqliteDemo extends StatefulWidget {
 }
 
 class _SqliteDemoState extends State<SqliteDemo> {
+  // * Declarations :
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   TextEditingController _searchController = TextEditingController();
@@ -40,8 +44,12 @@ class _SqliteDemoState extends State<SqliteDemo> {
   TextEditingController _inputController = TextEditingController();
 
   String thedata;
+
   String hintInput = '在此处插入数据';
+
   String hintSearch = '在此处搜索现有数据';
+
+  String searchResult = '';
 
   int increment = 0;
 
@@ -50,19 +58,13 @@ class _SqliteDemoState extends State<SqliteDemo> {
   List<Data> dataArray;
 
   List<Data> dummyData = [
-    Data(data: "doraemon"),
-    Data(data: "DDadasda"),
-    Data(data: "sdfsdfsd"),
-    Data(data: "doraemon"),
-    Data(data: "DDadasda"),
-    Data(data: "sdfsdfsd"),
-    Data(data: "doraemon"),
-    Data(data: "DDadasda"),
-    Data(data: "sdfsdfsd"),
-    Data(data: "doraemon"),
-    Data(data: "DDadasda"),
-    Data(data: "sdfsdfsd"),
+    Data(data: "I love you"),
+    Data(data: "you love me"),
+    Data(data: "we are happy"),
+    Data(data: "family"),
   ];
+
+  // * Logic Layers * //
 
   @override
   void initState() {
@@ -107,6 +109,8 @@ class _SqliteDemoState extends State<SqliteDemo> {
           .toString());
     }
   }
+
+  // * UI Component * //
 
   FutureBuilder<List<Data>> listData() {
     FutureBuilder dataFutureBuilder = FutureBuilder<List<Data>>(

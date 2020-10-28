@@ -12,8 +12,12 @@
 // * limitations under the License.
 import 'package:flutter/material.dart';
 import 'package:sqlite_search_engine/app.dart';
-
-// * https://github.com/johnmelodyme/sqlite_flutter_prototype-.git
+// * Comment: This prototype , I am using 3 tier architecture and separately distinct  Logic Layer ,
+// * UI Component and Database Layer. Which Flutter failed to provide.
+// *********************************************************
+// * 評論：這個原型，我使用的是3層架構和獨立的邏輯層，
+// * UI 組件和數據庫層。哪個Flutter無法提供。
+// * Reference 參考URL:  https://github.com/johnmelodyme/sqlite_flutter_prototype-.git
 
 void main() {
   DemoSQLLite demoSQLLite = DemoSQLLite();
