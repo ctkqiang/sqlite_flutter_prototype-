@@ -13,7 +13,6 @@
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:sqlite_search_engine/Database/databasehelper.dart';
 import 'package:sqlite_search_engine/Database/model/data.dart';
 
@@ -66,14 +65,12 @@ class _SqliteDemoState extends State<SqliteDemo> {
   void initState() {
     super.initState();
 
-    DatabaseHelper.instance.getDatabase.then((datalist) {
-      print(datalist.toString());
+    DatabaseHelper.instance.initDatabase().then((value) {
+      print('制造數據庫創建表完畢');
     });
 
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      DatabaseHelper.instance.initDatabase().then((value) {
-        print('制造數據庫創建表完畢');
-      });
+    DatabaseHelper.instance.getDatabase.then((datalist) {
+      print(datalist.toString());
     });
   }
 

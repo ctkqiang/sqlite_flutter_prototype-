@@ -11,6 +11,7 @@
 // * See the License for the specific language governing permissions and
 // * limitations under the License.
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -54,29 +55,33 @@ class DatabaseHelper {
   // * 在本地目录中创建数据库
   Future<Database> initDatabase() async {
     Directory dbsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(dbsDirectory.path, DATABASE_NAME);
-    return await openDatabase(path, version: DATABASE_VERSION, onOpen: (db) {},
-        onCreate: (Database db, int version) async {
-      await db.execute(
-        "CREATE TABLE $TABLE_NAME("
-        "$COLUMN_ID INTEGER PRIMARY KEY,"
-        "$COLUMN_DATA TEXT"
-        ")",
-      );
-      if(dbsDirectory.path.isNotEmpty) {
-        print('制造數據庫創建表完畢');
-      }
 
-    });
+    String path = join(dbsDirectory.path, DATABASE_NAME);
+
+    await deleteDatabase(path);
+
+    return await openDatabase(path,
+        version: DATABASE_VERSION, onCreate: _onCreate);
+  }
+
+  Future _onCreate(Database db, int version) async {
+    print('正在制造數據庫創建表.......');
+    await db.execute('''
+      DROP TABLE IF EXISTS `$TABLE_NAME`;
+      CREATE TABLE $TABLE_NAME(
+        $COLUMN_ID INTEGER PRIMARY KEY,
+        $COLUMN_DATA TEXT
+      )
+    ''');
   }
 
   newData(Data data) async {
     Database db = await getDatabase;
-    var table = await db.rawQuery("SELECT MAX(ID)+1 AS ID FROM DATA");
+    var table = await db.rawQuery('SELECT MAX(ID)+1 AS ID FROM DATA');
     int id = table.first['id'];
     int raw = await db.rawInsert(
-        "INSERT Into Data (id, data)"
-        "VALUES (?, ?)",
+        'INSERT Into Data (id, data)'
+        'VALUES (?, ?)',
         [id, data.data]);
     return raw;
   }
@@ -87,7 +92,11 @@ class DatabaseHelper {
 
     var res = await db.query("Data", where: "id = ?", whereArgs: [id]);
 
-    return res.isNotEmpty ? Data.fromMap(res.first) : null;
+    if (res.isNotEmpty) {
+      return Data.fromMap(res.first);
+    } else {
+      return null;
+    }
   }
 
   // * 將數據插入數據庫
@@ -103,14 +112,16 @@ class DatabaseHelper {
   Future<List<Data>> queryAllRecords() async {
     Database database = await instance.getDatabase;
 
-    var result = await database.query("Data");
+    var result = await database.query('Data');
 
-    List<Data> list = result.isNotEmpty
-        ? result.map((d) {
-            return Data.fromMap(d);
-          }).toList()
-        : [];
-
+    List<Data> list;
+    if (result.isNotEmpty) {
+      list = result.map((d) {
+        return Data.fromMap(d);
+      }).toList();
+    } else {
+      list = [];
+    }
     return list;
   }
 
@@ -135,7 +146,7 @@ class DatabaseHelper {
 
   deleteAll() async {
     Database db = await getDatabase;
-    db.rawDelete("Delete * from Data");
+    db.rawDelete('Delete * from Data');
   }
 
   // * 參考 : https://bit.ly/3odxGdV
@@ -151,8 +162,9 @@ class DatabaseHelper {
     Database databaseClient = await getDatabase;
 
     await databaseClient.transaction((Transaction transaction) {
-      return transaction
-          .rawInsert("""INSERT INTO $TABLE_NAME(data, id) VALUES(${data.data}, ${data.id});""");
+      return transaction.rawInsert('''
+          INSERT INTO $TABLE_NAME(data, id) VALUES(${data.data}, ${data.id});
+          ''');
     }).then((value) {
       print('saveDataValue: ---> $value');
     });
