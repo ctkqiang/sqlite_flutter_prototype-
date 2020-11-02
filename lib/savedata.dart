@@ -34,9 +34,12 @@ class _SqliteDemoState extends State<SqliteDemo> {
   // * Declarations :
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  TextEditingController _searchController = TextEditingController();
-
   TextEditingController _inputController = TextEditingController();
+
+  GlobalKey<RefreshIndicatorState> refreshkey =
+      GlobalKey<RefreshIndicatorState>();
+
+  DatabaseHelper _databaseHelper = DatabaseHelper.instance;
 
   String thedata;
 
@@ -46,11 +49,13 @@ class _SqliteDemoState extends State<SqliteDemo> {
 
   String searchResult = '';
 
-  int increment = 0;
-
   bool isChecked = false;
 
-  List<Data> dataArray;
+  int _increment = 0;
+
+  Data data = Data();
+
+  List<Data> dataArray = [];
 
   List<Data> dummyData = [
     Data(data: "I love you"),
@@ -61,135 +66,52 @@ class _SqliteDemoState extends State<SqliteDemo> {
 
   // * Logic Layers * //
 
-  @override
-  void initState() {
-    super.initState();
+  void insertData() async {
+    String _insertedData = _inputController.text;
 
-    DatabaseHelper.instance.initDatabase().then((value) {
-      print('制造數據庫創建表完畢');
-    });
+    _databaseHelper.insert(Data(
+      id: _increment++,
+      data: _insertedData,
+    ));
+    setupList();
+  }
 
-    DatabaseHelper.instance.getDatabase.then((datalist) {
-      print(datalist.toString());
+  void setupList() async {
+    List<Data> datalist = await _databaseHelper.fetchAllData();
+
+    List<Data> _data = datalist;
+    print(_data);
+
+    setState(() {
+      dataArray = _data;
     });
   }
 
-  deleteData(int id) async {
-    await DatabaseHelper.instance.delete(id);
+  void deleteData(int id) async {
+    await _databaseHelper.delete(id);
+
     setState(() {
-      dataArray.removeWhere((element) {
-        print('Element -> $element');
-        return element.id == id;
+      _databaseHelper.fetchAllData().then((currentData) {
+        return dataArray = currentData;
       });
     });
   }
 
-  saveData() async {
-    String _data = _inputController.text;
-    int length = math.Random().nextInt(_data.length);
-    DatabaseHelper.instance.newData(Data(data: _data, id: length));
-    setState(() {});
+  @override
+  void initState() {
+    super.initState();
+
+    setupList();
   }
 
-  searchData() async {
-    Data data;
-    String _data = _searchController.text;
-    int length = math.Random().nextInt(_data.length);
-    if (_formKey.currentState.validate()) {
-      DatabaseHelper.instance.searchData(Data(data: _data, id: length));
-      print(DatabaseHelper.instance
-          .searchData(Data(data: _data, id: length))
-          .toString());
-    }
+  Future<Null> refreshList() async {
+    refreshkey.currentState?.show(atTop: false);
+    setState(() {
+      setupList();
+    });
   }
 
   // * UI Component * //
-
-  ListView searchResultDialogue() {
-    List<Widget> listViewChildren = <Widget>[
-      /// Something here
-    ];
-    ListView listView = ListView(
-      children: listViewChildren,
-    );
-    return listView;
-  }
-
-  Future<dynamic> showDialogue() {
-    Future dialogue = showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          ListView resultDialogue = searchResultDialogue();
-          AlertDialog alertDialogue = AlertDialog(
-            title: Text(''),
-            content: resultDialogue,
-          );
-          return alertDialogue;
-        });
-    return dialogue;
-  }
-
-  FutureBuilder<List<Data>> listData() {
-    FutureBuilder dataFutureBuilder = FutureBuilder<List<Data>>(
-      future: DatabaseHelper.instance.queryAllRecords(),
-      builder: (BuildContext context, AsyncSnapshot<List<Data>> snapshot) {
-        if (snapshot.hasData) {
-          ListView listView = ListView.builder(
-            itemCount: snapshot.data.length,
-            itemBuilder: (BuildContext context, int index) {
-              Data item = snapshot.data[index];
-              Checkbox checkbox = Checkbox(
-                value: isChecked,
-                onChanged: (bool value) {
-                  setState(() {
-                    isChecked = true;
-                    if (isChecked = true) {
-                      DatabaseHelper.instance.delete(item.id);
-                    }
-                  });
-                },
-              );
-              ListTile listTile = ListTile(
-                title: Text(item.data),
-                leading: Text(item.id.toString()),
-                trailing: checkbox,
-              );
-              Dismissible dismissible = Dismissible(
-                key: UniqueKey(),
-                background: Container(color: Colors.white),
-                onDismissed: (direction) {
-                  print(direction.toString());
-                  DatabaseHelper.instance.delete(item.id);
-                },
-                child: listTile,
-              );
-              return dismissible;
-            },
-          );
-          return listView;
-        } else {
-          Center loading = Center(child: CircularProgressIndicator());
-          return loading;
-        }
-      },
-    );
-    return dataFutureBuilder;
-  }
-
-  FloatingActionButton addButton() {
-    String tooltip = 'Add Dummy Data From Existing Source?';
-    FloatingActionButton actionButton = FloatingActionButton(
-      elevation: null,
-      tooltip: tooltip,
-      child: Icon(Icons.add),
-      onPressed: () async {
-        Data rnd = dummyData[math.Random().nextInt(dummyData.length)];
-        await DatabaseHelper.instance.newData(rnd);
-        setState(() {});
-      },
-    );
-    return actionButton;
-  }
 
   TextFormField inputDataTextField() {
     BorderRadius borderRadius = BorderRadius.circular(15.0);
@@ -213,28 +135,6 @@ class _SqliteDemoState extends State<SqliteDemo> {
     return inputTextFormField;
   }
 
-  TextFormField searchBarTextField() {
-    BorderRadius borderRadius = BorderRadius.circular(15.0);
-    BorderSide borderSide = BorderSide(color: Colors.red);
-    OutlineInputBorder outlineInputBorder = OutlineInputBorder(
-      borderRadius: borderRadius,
-      borderSide: borderSide,
-    );
-    InputDecoration inputDecoration = InputDecoration(
-      focusedBorder: outlineInputBorder,
-      fillColor: Colors.red,
-      hoverColor: Colors.red,
-      border: outlineInputBorder,
-      hintText: hintSearch,
-    );
-    TextFormField searchTextFormField = TextFormField(
-      controller: _searchController,
-      cursorColor: Colors.red,
-      decoration: inputDecoration,
-    );
-    return searchTextFormField;
-  }
-
   RaisedButton save() {
     TextStyle textStyle = TextStyle(color: Colors.white, fontSize: 17.823);
     Text save = Text(
@@ -245,52 +145,58 @@ class _SqliteDemoState extends State<SqliteDemo> {
       elevation: 6,
       child: save,
       color: Colors.red,
-      onPressed: saveData,
+      onPressed: insertData,
     );
   }
 
-  RaisedButton search() {
-    TextStyle textStyle = TextStyle(color: Colors.white, fontSize: 17.823);
-    Text search = Text('搜索', style: textStyle);
-    return RaisedButton(
-      elevation: 6,
-      child: search,
-      color: Colors.red,
-      onPressed: searchData,
-    );
-  }
+  Widget _buildDataList(List<Data> datalist) {
+    ListView datalistView = ListView.builder(
+      itemCount: datalist.length,
+      itemBuilder: (BuildContext context, int index) {
+        Text content = Text(
+          '${datalist[index].id.toString()} \n '
+          '${datalist[index].data.toString()} \n',
+        );
 
-  Row buttons() {
-    RaisedButton savebtn = save();
-    RaisedButton searchbtn = search();
-    MainAxisAlignment center = MainAxisAlignment.center;
-    Text hDivider = Text('\t\t\t\t\t\t\t');
-    Text vDivider = Text('\n\n\n\n\n');
-    List<Widget> rowChildren = <Widget>[
-      vDivider,
-      savebtn,
-      hDivider,
-      searchbtn,
-    ];
-    Row buttonsRow = Row(
-      mainAxisAlignment: center,
-      children: rowChildren,
+        IconButton deleteContent = IconButton(
+          icon: Icon(Icons.delete),
+          onPressed: () {
+            deleteData(datalist[index].id);
+          },
+        );
+
+        List<Widget> listViewBody = <Widget>[
+          content,
+          deleteContent,
+        ];
+
+        Row row = Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+          children: listViewBody,
+        );
+        return RefreshIndicator(
+          child: row,
+          onRefresh: refreshList,
+        );
+      },
     );
-    return buttonsRow;
+    return Expanded(
+      child: datalistView,
+    );
   }
 
   Form searchEngine() {
     TextFormField searchEngineInputDataTextField = inputDataTextField();
-    TextFormField searchEngineSearchDataTextField = searchBarTextField();
+
     Divider searchEngineDivider = Divider(
       height: 20,
       color: Colors.transparent,
     );
-    Row searchEngineActionButtons = buttons();
+    RaisedButton searchEngineActionButtons = save();
     List<Widget> searchEngineColumnChildren = <Widget>[
       searchEngineInputDataTextField,
       searchEngineDivider,
-      searchEngineSearchDataTextField,
       searchEngineActionButtons,
     ];
     Column searchEngineColumn = Column(
@@ -309,10 +215,8 @@ class _SqliteDemoState extends State<SqliteDemo> {
   }
 
   Column appBody() {
-    Expanded appbodyexpanded = Expanded(
-      child: listData(),
-    );
     Form appBodySearchEngine = searchEngine();
+    Widget searchEngineListShowData = _buildDataList(dataArray);
     Divider appbodydivider = Divider(
       height: 10.122235,
       color: Colors.transparent,
@@ -320,7 +224,7 @@ class _SqliteDemoState extends State<SqliteDemo> {
     List<Widget> appbodychildren = <Widget>[
       appBodySearchEngine,
       appbodydivider,
-      appbodyexpanded,
+      searchEngineListShowData,
     ];
     return Column(
       children: appbodychildren,
@@ -331,7 +235,6 @@ class _SqliteDemoState extends State<SqliteDemo> {
   Widget build(BuildContext context) {
     Scaffold mainpage = Scaffold(
       body: appBody(),
-      floatingActionButton: addButton(),
     );
     return mainpage;
   }

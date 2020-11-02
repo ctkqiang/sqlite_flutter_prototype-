@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:sqlite_search_engine/about.dart';
 import 'package:sqlite_search_engine/core/permission.dart';
 import 'package:sqlite_search_engine/savedata.dart';
+import 'package:sqlite_search_engine/search.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SqliteApplication extends StatefulWidget {
@@ -31,7 +32,12 @@ class SqliteApplication extends StatefulWidget {
 class _SqliteApplicationState extends State<SqliteApplication> {
   String url = 'https://github.com/johnmelodyme/sqlite_flutter_prototype-.git';
 
+  int _currentIndex = 0;
 
+  final List<Widget> _children = [
+    SqliteDemo(),
+    SearchDatabase(),
+  ];
 
   @override
   void initState() {
@@ -87,14 +93,47 @@ class _SqliteApplicationState extends State<SqliteApplication> {
     );
   }
 
-
-
+  BottomNavigationBar bottomNavigationBar() {
+    BottomNavigationBarItem mainpage = BottomNavigationBarItem(
+      icon: Icon(Icons.home),
+      label: '主頁',
+    );
+    BottomNavigationBarItem searchpage = BottomNavigationBarItem(
+      icon: Icon(Icons.search_rounded),
+      label: '搜索頁面',
+    );
+    List<BottomNavigationBarItem> bottombaritems = <BottomNavigationBarItem>[
+      mainpage,
+      searchpage,
+    ];
+    BottomNavigationBar bottomNavigationBar = BottomNavigationBar(
+      onTap: (value) {
+        setState(() {
+          _currentIndex = value;
+        });
+      },
+      backgroundColor: Colors.white,
+      unselectedItemColor: Colors.black87,
+      selectedItemColor: Colors.red,
+      currentIndex: _currentIndex,
+      items: bottombaritems,
+    );
+    return bottomNavigationBar;
+  }
 
   @override
   Widget build(BuildContext context) {
-    var scaffold = Scaffold(
+    BottomNavigationBar _bottomNavigationBar = bottomNavigationBar();
+    Widget bodyLogic = (() {
+      if (_currentIndex != 0) {
+        return _children[1];
+      }
+      return _children[0];
+    }());
+    Scaffold scaffold = Scaffold(
       appBar: appBar(),
-      body: SqliteDemo(),
+      body: bodyLogic,
+      bottomNavigationBar: _bottomNavigationBar,
     );
     return scaffold;
   }

@@ -11,8 +11,6 @@
 // * See the License for the specific language governing permissions and
 // * limitations under the License.
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 import 'package:sqlite_search_engine/Database/databasehelper.dart';
 import 'package:sqlite_search_engine/app.dart';
 
@@ -26,7 +24,9 @@ import 'package:sqlite_search_engine/app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  DatabaseHelper.instance.initDatabase();
+  DatabaseHelper databaseHelper = DatabaseHelper.instance;
+
+  databaseHelper.initDatabase();
 
   DemoSQLLite demoSQLLite = DemoSQLLite();
 

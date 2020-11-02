@@ -44,17 +44,8 @@
 	<false/>
 
 
-	<key>NSCameraUsageDescription</key>
-	<string>Can I use the Camera? </string>
-	<key>NSContactsUsageDescription</key>
-	<string>Can I use your Contacts? </string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Can I know your Location? </string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Can I know your Location? </string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Can I use the Microphone? </string>
+
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Can I use your Photo Library?</string>
+	<string>Bla Bla Bla Bla Bla Bla Bla </string>
 </dict>
 </plist>

@@ -11,17 +11,19 @@
 // * See the License for the specific language governing permissions and
 // * limitations under the License.
 import 'dart:io';
-import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqlite_search_engine/Database/model/data.dart';
 
 class DatabaseHelper {
+  // __init__
   DatabaseHelper._();
 
+  static DatabaseHelper _databaseHelper;
+
   // ignore: non_constant_identifier_names
-  static String DATABASE_NAME = 'sqldemojohn.db';
+  static String DATABASE_NAME = 'johnsqldemo.db';
 
   // ignore: non_constant_identifier_names
   static String TABLE_NAME = 'Data';
@@ -35,118 +37,109 @@ class DatabaseHelper {
   static String item;
 
   // ignore: non_constant_identifier_names
-  static int DATABASE_VERSION = 1;
-
-  static DatabaseHelper instance = DatabaseHelper._();
+  static int DATABASE_VERSION = 2;
 
   static Database _database;
 
-  Future<Database> get getDatabase async {
-    // * Singleton
-    if (_database != null) {
-      return _database;
-    }
+  DatabaseHelper._privateConstructor();
 
-    _database = await initDatabase();
+  static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
+
+  factory DatabaseHelper() {
+    if (_databaseHelper == null) {
+      _databaseHelper = DatabaseHelper.instance;
+    }
+    return _databaseHelper;
+  }
+
+  Future<Database> get _getDatabase async {
+    // * Singleton
+    if (_database == null) {
+      return _database = await initDatabase();
+    }
 
     return _database;
   }
 
   // * 在本地目录中创建数据库
-  Future<Database> initDatabase() async {
+  initDatabase() async {
     Directory dbsDirectory = await getApplicationDocumentsDirectory();
 
-    String path = join(dbsDirectory.path, DATABASE_NAME);
+    String path = join(dbsDirectory.path, '${DATABASE_NAME.toString()}');
 
-    await deleteDatabase(path);
-
-    return await openDatabase(path,
-        version: DATABASE_VERSION, onCreate: _onCreate);
+    return await openDatabase(
+      path,
+      version: DATABASE_VERSION,
+      onCreate: onCreateDatabase,
+      onUpgrade: onUpgradeDatabase,
+    );
   }
 
-  Future _onCreate(Database db, int version) async {
+  void onCreateDatabase(Database db, int version) {
     print('正在制造數據庫創建表.......');
-    await db.execute('''
-      DROP TABLE IF EXISTS `$TABLE_NAME`;
+    // * DROP TABLE IF EXISTS `$TABLE_NAME`;
+    db.execute(
+      """
       CREATE TABLE $TABLE_NAME(
-        $COLUMN_ID INTEGER PRIMARY KEY,
-        $COLUMN_DATA TEXT
-      )
-    ''');
+        $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        $COLUMN_DATA TEXT)
+      """,
+    );
   }
 
-  newData(Data data) async {
-    Database db = await getDatabase;
-    var table = await db.rawQuery('SELECT MAX(ID)+1 AS ID FROM DATA');
-    int id = table.first['id'];
-    int raw = await db.rawInsert(
-        'INSERT Into Data (id, data)'
-        'VALUES (?, ?)',
-        [id, data.data]);
-    return raw;
-  }
-
-  // * 搜數據庫創建表
-  getData(int id) async {
-    Database db = await getDatabase;
-
-    var res = await db.query("Data", where: "id = ?", whereArgs: [id]);
-
-    if (res.isNotEmpty) {
-      return Data.fromMap(res.first);
-    } else {
-      return null;
-    }
+  void onUpgradeDatabase(Database database, int oldVersion, int newVersion) {
+    // Migration from old to new ...
   }
 
   // * 將數據插入數據庫
-  Future<Data> insert(Data data) async {
-    Database database = await instance.getDatabase;
+  Future<int> insert(Data data) async {
+    var insertedData = await _getDatabase;
 
-    data.id = await database.insert(TABLE_NAME, data.toMap());
+    int _insertData = await insertedData.insert(
+      '$TABLE_NAME',
+      data.toDataMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
 
-    return data;
+    return _insertData;
   }
 
   // * 查詢數據庫中的所有記錄
-  Future<List<Data>> queryAllRecords() async {
-    Database database = await instance.getDatabase;
+  Future<Data> fetchData(int id) async {
+    var _db = await _getDatabase;
+    final Future<List<Map<String, dynamic>>> futureMaps = _db.query(
+      '$TABLE_NAME',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
 
-    var result = await database.query('Data');
+    List<Map<String, dynamic>> fetchedData = await futureMaps;
 
-    List<Data> list;
-    if (result.isNotEmpty) {
-      list = result.map((d) {
-        return Data.fromMap(d);
-      }).toList();
-    } else {
-      list = [];
+    if (fetchedData.length != 0) {
+      Data _data = Data.fromMap(fetchedData.first);
+      return _data;
     }
-    return list;
+
+    return null;
   }
 
   // * 從數據庫中刪除記錄
   // * @param id get item.id from user input
   Future<int> delete(int id) async {
-    Database database = await instance.getDatabase;
+    Database database = await _getDatabase;
 
     return await database.delete(
-      TABLE_NAME,
-      where: 'id = ?',
+      '$TABLE_NAME',
+      where: '$id = ?',
       whereArgs: [id],
     );
   }
 
-  // * 從表中刪除記錄
-  Future<void> clearTable() async {
-    Database database = await instance.getDatabase;
-
-    return await database.rawQuery('''DELETE FROM $TABLE_NAME''');
-  }
-
   deleteAll() async {
-    Database db = await getDatabase;
-    db.rawDelete('Delete * from Data');
+    Database database = await _getDatabase;
+    int _deleteAllData = await database.rawDelete('Delete * from Data');
+
+    return _deleteAllData;
   }
 
   // * 參考 : https://bit.ly/3odxGdV
@@ -159,7 +152,7 @@ class DatabaseHelper {
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   // * 保存數據
   void saveData(Data data) async {
-    Database databaseClient = await getDatabase;
+    Database databaseClient = await _getDatabase;
 
     await databaseClient.transaction((Transaction transaction) {
       return transaction.rawInsert('''
@@ -170,8 +163,23 @@ class DatabaseHelper {
     });
   }
 
+  Future<List<Data>> fetchAllData() async {
+    Database database = await _getDatabase;
+    List<Map<String, dynamic>> response = await database.query('$TABLE_NAME');
+
+    if (response.isNotEmpty) {
+      List<Data> datae = response.map((dataMap) {
+        return Data.fromMap(dataMap);
+      }).toList(growable: true);
+
+      return datae;
+    } else {
+      return [];
+    }
+  }
+
   searchData(Data data) async {
-    Database databaseClient = await getDatabase;
+    Database databaseClient = await _getDatabase;
 
     await databaseClient.transaction((Transaction transaction) {
       return transaction.rawInsert('''
@@ -180,5 +188,10 @@ class DatabaseHelper {
     }).then((value) {
       print('searchDataValue: ---> $value');
     });
+  }
+
+  Future closeDatabase() async {
+    Database database = await _getDatabase;
+    database.close();
   }
 }
